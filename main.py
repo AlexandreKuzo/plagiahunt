@@ -1,34 +1,57 @@
+import requests
+import sys
 import os
-from sklearn.feature_extraction.text import TfidfVectorizer # Permet de calculer la fréquence d'apparition de mots proportionnellement au nombre de documents comparés 
-from sklearn.metrics.pairwise import cosine_similarity # On importe le comparateur cosine similarity
-
-sample_files = [doc for doc in os.listdir() if doc .endswith(".js")] # On indique l'extension des documents comparés et le dossier dans lequel on va chercher
-sample_contents = [open(file).read() for file in sample_files] # on créé une boucle pour lire chaque documents
-
-# La fréquence d'apparition des mots est passée en argument Text ; argument converti en tableau ensuite.
-vectorize = lambda Text: TfidfVectorizer().fit_transform(Text).toarray() 
-
-# Comparaison entre un doc 1 et un doc 2 avec cosine
-similarity = lambda doc1, doc2: cosine_similarity([doc1, doc2]) 
-
-vectors = vectorize(sample_contents) # on applique la méthode vectorize sur le contenu des documents 
-s_vectors = list(zip(sample_files, vectors)) # on créé un tuple avec les documents et les vecteurs respectifs
-
-def check_plagiarism():
-    results = set()
-    global s_vectors # on créé une variable globale s_vectors
-    for sample_a, text_vector_a in s_vectors:
-        # fonction récursive pour créer les comparaisons entre documents, avec une boucle
-        new_vectors = s_vectors.copy() # on "reproduit" s_vectors
-        current_index = new_vectors.index((sample_a, text_vector_a)) # on identifie le rang avant de le retirer
-        del new_vectors[current_index]
-        for sample_b, text_vector_b in new_vectors: # on remplace le vecteur effacé par le nouveau vecteur pour la comparaison
-            sim_score = similarity(text_vector_a, text_vector_b)[0][1] # on applique le résultat du calcul
-            sample_pair = sorted((sample_a, sample_b))
-            score = sample_pair[0], sample_pair[1], sim_score
-            results.add(score)
-    return results
+import json
+from os.path import join, dirname
+from dotenv import load_dotenv
 
 
-for data in check_plagiarism():
-    print(data)
+# Init environment
+dotenv_path = join(dirname(__file__), '.env')
+load_dotenv(dotenv_path)
+
+# Check for all arguments
+if len(sys.argv) < 3 :
+    raise SystemExit
+
+# Start Github getter
+print("\nCalling GitHub API")
+
+query = sys.argv[1]+"+in:file+language:"+sys.argv[2]
+myHeaders = {
+	"Accept": "application/vnd.github+json",
+	"Authorization": "Bearer {}".format(os.environ.get('TOKEN'))
+}
+
+res = requests.get(os.environ.get("GITHUB_API").format(query), headers=myHeaders)
+
+plagiat = json.loads(res.text)
+
+# Check for result
+if plagiat['total_count'] == 0:
+    print("No result found")
+    raise SystemExit
+
+# Waiting user go according number of results
+print("Github gave us {} result(s)".format(plagiat['total_count']))
+answer = input("\nLet's Go ? [Yes|no] ")
+if answer.lower() in ['n', 'No'] :
+    raise SystemExit
+
+# Download files
+for item in plagiat['items'] :
+    print(item['html_url'])
+    url = item['html_url'].replace("https://github.com", "https://raw.githubusercontent.com/")
+    url = url.replace("/blob", "")
+
+    res = requests.get(url)
+
+    fp = open(os.environ.get("TMP")+"/"+item['repository']['owner']['login']+"_"+item['name'], "wb")
+    fp.write(res.content)
+    fp.close()
+
+# Call main engine for search plagiat
+print("\nGo to plagiat fiesta")
+os.system('python3 engine.py ./tmp js')
+
+

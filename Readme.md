@@ -22,11 +22,12 @@ Etape 3: activez l'environnement virtuel avec la commande appropriée ``source e
 
 Etape 4 : installez au projet les packages requis ; ceux-ci sont fournis dans le fichier ``requirements.txt`` La commande suivante le fera : ``pip install -r requirements.txt``.
 
+Etape 5 : créer et récupérer votre token d'accès pour github et le placer dans le fichier env
 
 ### Exécuter le script
-``python3 main.py``vous permettra de lancer le script. Pour que l'opération de comparaison se fasse en console, il vous faudra avant cela : 
-- choisir l'extension des documents que vous voulez comparer (ligne 5 dans main.py)
-- ajouter tous vos documents à la racine de votre dossier avant de lancer le script
+``python3 main.py "une chaine de recherce" js``vous permettra de lancer le script et de faire une recherche avec récupération des fichiers sur github pour des fichier en js.
+
+
 
 
 ## Utilisateur
