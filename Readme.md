@@ -25,13 +25,15 @@ Etape 4 : installez au projet les packages requis ; ceux-ci sont fournis dans le
 Etape 5 : créer et récupérer votre token d'accès pour github et le placer dans le fichier env
 
 ### Exécuter le script
-``python3 main.py "une chaine de recherce" js``vous permettra de lancer le script et de faire une recherche avec récupération des fichiers sur github pour des fichier en js.
+``python3 main.py "une chaine de recherche" extension``vous permettra de lancer le script et de faire une recherche avec récupération des fichiers sur github dans l'extension demandée. Deux rapports seront générés en .csv avec toutes les combinaisons de fichiers dans ``report.csv`` & les combinaisons avec un fort soupçon de copie dans ``to_investigate.csv``.  
 
 
 
 
-## Utilisateur
+## Auteurs
+* **Florian T** [@Floriansp40](https://github.com/Floriansp40)
 * **Alexandre Kuzo**  [@alexandrekuzo](https://github.com/AlexandreKuzo)
+
 
 
 ## Améliorer le projet ? 
